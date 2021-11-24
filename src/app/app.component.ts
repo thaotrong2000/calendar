@@ -1,5 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CalendarOptions } from '@fullcalendar/angular'; // useful for typechecking
+import {
+  NgbModal,
+  ModalDismissReasons,
+  NgbModalConfig,
+} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +13,19 @@ import { CalendarOptions } from '@fullcalendar/angular'; // useful for typecheck
 })
 export class AppComponent {
   title = 'calendar';
+  closeResult = '';
+  textDate: string = '';
+  @ViewChild('content') input: ElementRef | undefined;
+
+  constructor(config: NgbModalConfig, private modalService: NgbModal) {
+    // customize default values of modals used by this component tree
+    config.backdrop = 'static';
+    config.keyboard = false;
+  }
+
+  open(content: any) {
+    this.modalService.open(content);
+  }
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
@@ -19,6 +37,7 @@ export class AppComponent {
   };
 
   handleDateClick(arg: any) {
-    alert('date click! ' + arg.dateStr);
+    this.modalService.open(this.input);
+    this.textDate = arg.dateStr;
   }
 }
