@@ -1,4 +1,122 @@
-<full-calendar [options]="calendarOptions"></full-calendar>
+<h4 class="text-center btn btn-primary" (click)="openCalendar()">
+  Tạo mới cuộc họp
+</h4>
+
+<full-calendar [options]="calendarOptions"> </full-calendar>
+
+<!-- Dialog display calendar -->
+<ng-template #calendar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title font-weight-bold" style="font-size: 1.5rem">
+      Tạo một cuộc họp:
+    </h4>
+    <button
+      type="button"
+      class="btn shadow-none border"
+      aria-label="Close"
+      (click)="d('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="d-flex flex-column">
+      <p>
+        <strong>Chủ đề:</strong
+        ><input type="text" [(ngModel)]="subject" class="form-control" />
+      </p>
+      <div class="start-time d-flex align-items-center">
+        <span><strong>Thời gian bắt đầu:</strong>&#160;&#160; </span>
+      </div>
+      <div class="d-flex justify-content-between">
+        <form class="form-inline">
+          <div class="form-group">
+            <div class="input-group">
+              <input
+                class="form-control"
+                placeholder="dd/mm/yyyy"
+                name="d1"
+                #c1="ngModel"
+                [(ngModel)]="model1"
+                ngbDatepicker
+                #d1="ngbDatepicker"
+              />
+              <div class="input-group-append">
+                <button
+                  class="btn btn-outline-secondary calendar"
+                  (click)="d1.toggle()"
+                  type="button"
+                >
+                  <i class="far fa-calendar-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <input
+          [ngxTimepicker]="picker"
+          class="form-control"
+          style="max-width: 40%"
+          [(ngModel)]="hourStart"
+          [format]="24"
+        />
+      </div>
+      <ngx-material-timepicker #picker [format]="24"></ngx-material-timepicker>
+    </div>
+    <div class="d-flex flex-column mt-4">
+      <div class="end-time">
+        <span><strong>Thời gian kết thúc: </strong></span>
+      </div>
+      <div class="d-flex justify-content-between">
+        <form class="form-inline">
+          <div class="form-group">
+            <div class="input-group">
+              <input
+                class="form-control"
+                placeholder="dd/mm/yyyy"
+                name="d2"
+                #c2="ngModel"
+                [(ngModel)]="model2"
+                ngbDatepicker
+                #d2="ngbDatepicker"
+              />
+              <div class="input-group-append">
+                <button
+                  class="btn btn-outline-secondary calendar"
+                  (click)="d2.toggle()"
+                  type="button"
+                >
+                  <i class="far fa-calendar-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <input
+          [ngxTimepicker]="picker2"
+          class="form-control"
+          style="max-width: 40%"
+          [(ngModel)]="hourEnd"
+          [format]="24"
+        />
+      </div>
+    </div>
+
+    <ngx-material-timepicker #picker2 [format]="24"></ngx-material-timepicker>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-dark"
+      (click)="c('Save click'); createMeeting()"
+    >
+      Ok
+    </button>
+  </div>
+</ng-template>
+
+<!-- Dialog display information -->
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">Thông tin</h4>
@@ -11,17 +129,23 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-  <div class="modal-body">
+  <div class="modal-body" *ngIf="startText == '' ? false : true">
     <p>{{ startText }}</p>
     <p>{{ endText }}</p>
+    <p>Chủ đề cuộc họp: {{ subjectText }}</p>
   </div>
+
+  <div class="modal-body no-meeting" *ngIf="startText == '' ? true : false">
+    <p>{{ noMeeting }}</p>
+  </div>
+
   <div class="modal-footer">
     <button
       type="button"
       class="btn btn-outline-dark"
       (click)="c('Save click')"
     >
-      Save
+      Ok
     </button>
   </div>
 </ng-template>

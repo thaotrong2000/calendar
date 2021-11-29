@@ -6,6 +6,8 @@ import interactionPlugin from '@fullcalendar/interaction'; // a plugin!
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 FullCalendarModule.registerPlugins([
@@ -16,6 +18,7 @@ FullCalendarModule.registerPlugins([
 
 import { AppRoutingModule } from './app-routing.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [AppComponent],
@@ -26,6 +29,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     NgbModule,
     FormsModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    NgxMaterialTimepickerModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
