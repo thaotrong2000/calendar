@@ -89,6 +89,7 @@ export class AppComponent implements OnInit {
   };
   @ViewChild('content') input: ElementRef | undefined;
   @ViewChild('calendar') calendarDialog: ElementRef | undefined;
+  @ViewChild('alertMeeting') alertMeeting: ElementRef | undefined;
 
   inforCalendar: any;
 
@@ -101,6 +102,12 @@ export class AppComponent implements OnInit {
   hourStart: string = '';
   hourEnd: string = '';
   subject: string = '';
+
+  msgMeeting: string = 'Tạo cuộc họp thành công';
+  statusCreateMeeting: boolean = false;
+  messageSlack: any;
+
+  listMessageMeeting: Array<any> = [];
 
   // Convert XML to JSON
 
@@ -122,10 +129,52 @@ export class AppComponent implements OnInit {
       this.inforCalendar = data.value;
       console.log(this.inforCalendar);
     });
+
+    // Get message from slack
+    this.getMessageSlack();
   }
 
   get today() {
     return this.dateAdapter.toModel(this.ngbCalendar.getToday())!;
+  }
+
+  public getMessageSlack(): void {
+    this.commonService.getMessageSlack().subscribe((data) => {
+      this.messageSlack = data.messages;
+      console.log(this.messageSlack);
+      for (const message of this.messageSlack) {
+        if (
+          message.type == 'message' &&
+          message.text.slice(0, 8) == '#meeting'
+        ) {
+          this.listMessageMeeting.push(message.text.slice(-19));
+        }
+      }
+
+      console.log(this.listMessageMeeting);
+      for (const meeting of this.listMessageMeeting) {
+        var endMeeting =
+          meeting.slice(0, 11) +
+          (Number(meeting.slice(11, 13)) + 2) +
+          meeting.slice(13);
+        console.log(endMeeting);
+        this.commonService
+          .createMeetingCalendar({
+            subject: 'Tạo mới một cuộc họp',
+            start: {
+              dateTime: meeting,
+              timeZone: 'UTC',
+            },
+            end: {
+              dateTime: endMeeting,
+              timeZone: 'UTC',
+            },
+          })
+          .subscribe((data) => {
+            console.log(data);
+          });
+      }
+    });
   }
 
   public selectToday() {
@@ -231,8 +280,20 @@ export class AppComponent implements OnInit {
       .subscribe(
         (data) => {
           console.log(data);
+          this.statusCreateMeeting = true;
+          this.msgMeeting = 'Tạo cuộc họp thành công';
+          this.openAlertMeeting();
         },
-        (err) => console.log(err)
+        (err) => {
+          console.log(err);
+          this.statusCreateMeeting = false;
+          this.msgMeeting = 'Tạo cuộc họp không thành công';
+          this.openAlertMeeting();
+        }
       );
+  }
+
+  public openAlertMeeting(): void {
+    this.modalService.open(this.alertMeeting);
   }
 }

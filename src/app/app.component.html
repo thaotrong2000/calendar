@@ -1,4 +1,5 @@
-<h4 class="text-center btn btn-primary" (click)="openCalendar()">
+<div></div>
+<h4 class="text-center btn btn-primary mt-4" (click)="openCalendar()">
   Tạo mới cuộc họp
 </h4>
 
@@ -119,7 +120,9 @@
 <!-- Dialog display information -->
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Thông tin</h4>
+    <h4 class="modal-title" id="modal-basic-title" style="font-size: 1.4rem">
+      <strong>Thông tin</strong>
+    </h4>
     <button
       type="button"
       class="btn shadow-none border"
@@ -146,6 +149,48 @@
       (click)="c('Save click')"
     >
       Ok
+    </button>
+  </div>
+</ng-template>
+
+<!-- Display modal when create a meeting -->
+
+<ng-template #alertMeeting let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title" style="font-size: 1.4rem">
+      <strong> Tạo mới cuộc họp</strong>
+    </h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="d('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p
+      style="font-size: 1.3rem"
+      [ngClass]="{
+        'text-primary': statusCreateMeeting,
+        'text-danger': !statusCreateMeeting
+      }"
+    >
+      {{ msgMeeting }}
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn border-0 text-white"
+      (click)="c('Save click')"
+      [ngClass]="{
+        'btn-primary': statusCreateMeeting,
+        'btn-danger': !statusCreateMeeting
+      }"
+    >
+      OK
     </button>
   </div>
 </ng-template>
