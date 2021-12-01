@@ -24,4 +24,9 @@ export class CommonService {
   public getMessageSlack(): Observable<any> {
     return this.http.get('http://localhost:8088/getSlack');
   }
+
+  // Post file driver according format dateTime
+  public createFileDriver(): Observable<any> {
+    return this.http.post<any>('http://localhost:8088/createFolder', {});
+  }
 }

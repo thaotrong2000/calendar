@@ -1,5 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CalendarOptions } from '@fullcalendar/angular'; // useful for typechecking
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { CalendarOptions, FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
 import { Injectable } from '@angular/core';
 import {
   NgbDateAdapter,
@@ -72,7 +78,7 @@ export class CustomDateParserFormatter extends NgbDateParserFormatter {
     { provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
   ],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'calendar';
   closeResult = '';
   startText: string = '';
@@ -90,6 +96,9 @@ export class AppComponent implements OnInit {
   @ViewChild('content') input: ElementRef | undefined;
   @ViewChild('calendar') calendarDialog: ElementRef | undefined;
   @ViewChild('alertMeeting') alertMeeting: ElementRef | undefined;
+  @ViewChild('calendarCustom') calendarCustom:
+    | FullCalendarComponent
+    | undefined;
 
   inforCalendar: any;
 
@@ -107,6 +116,8 @@ export class AppComponent implements OnInit {
   statusCreateMeeting: boolean = false;
   messageSlack: any;
 
+  arrayInforDay: Array<any> = new Array<any>();
+
   listMessageMeeting: Array<any> = [];
 
   // Convert XML to JSON
@@ -123,6 +134,7 @@ export class AppComponent implements OnInit {
     config.backdrop = 'static';
     config.keyboard = false;
   }
+  ngAfterViewInit(): void {}
   ngOnInit(): void {
     // Get infor about Calendar
     this.commonService.getInforCalendar().subscribe((data) => {
@@ -141,7 +153,6 @@ export class AppComponent implements OnInit {
   public getMessageSlack(): void {
     this.commonService.getMessageSlack().subscribe((data) => {
       this.messageSlack = data.messages;
-      console.log(this.messageSlack);
       for (const message of this.messageSlack) {
         if (
           message.type == 'message' &&
@@ -151,13 +162,11 @@ export class AppComponent implements OnInit {
         }
       }
 
-      console.log(this.listMessageMeeting);
       for (const meeting of this.listMessageMeeting) {
         var endMeeting =
           meeting.slice(0, 11) +
           (Number(meeting.slice(11, 13)) + 2) +
           meeting.slice(13);
-        console.log(endMeeting);
         this.commonService
           .createMeetingCalendar({
             subject: 'Tạo mới một cuộc họp',
@@ -171,7 +180,14 @@ export class AppComponent implements OnInit {
             },
           })
           .subscribe((data) => {
-            console.log(data);
+            setTimeout(() => {
+              this.commonService.createFileDriver().subscribe(
+                (data) => {
+                  console.log(data);
+                },
+                (err) => console.log(err)
+              );
+            }, 1000);
           });
       }
     });
@@ -190,12 +206,15 @@ export class AppComponent implements OnInit {
   }
 
   public handleDateClick(arg: any) {
+    console.log(this.inforCalendar);
     this.modalService.open(this.input);
     console.log(arg.dateStr);
+    this.arrayInforDay = [];
 
     for (const key in this.inforCalendar) {
       this.startText = '';
       this.endText = '';
+      this.noMeeting = '';
       console.log(this.inforCalendar[key].start.dateTime.slice(0, 10));
       if (this.inforCalendar[key].start.dateTime.slice(0, 10) == arg.dateStr) {
         this.noMeeting = '';
@@ -216,11 +235,17 @@ export class AppComponent implements OnInit {
           .slice(0, 10)
           .slice(0, 4)}`;
 
-        break;
+        this.arrayInforDay.push({
+          subjectText: this.subjectText,
+          startText: this.startText,
+          endText: this.endText,
+        });
       }
 
       if (Number(key) == this.inforCalendar.length - 1) {
-        this.noMeeting = 'Không có cuộc họp.';
+        if (this.arrayInforDay.length == 0) {
+          this.noMeeting = 'Không có cuộc họp.';
+        }
       }
     }
   }
@@ -279,6 +304,15 @@ export class AppComponent implements OnInit {
       })
       .subscribe(
         (data) => {
+          this.commonService.createFileDriver().subscribe(
+            (data) => {
+              console.log('okkkk');
+              console.log(data);
+            },
+            (err) => {
+              console.log(err);
+            }
+          );
           console.log(data);
           this.statusCreateMeeting = true;
           this.msgMeeting = 'Tạo cuộc họp thành công';

@@ -3,7 +3,7 @@
   Tạo mới cuộc họp
 </h4>
 
-<full-calendar [options]="calendarOptions"> </full-calendar>
+<full-calendar #calendarCustom [options]="calendarOptions"> </full-calendar>
 
 <!-- Dialog display calendar -->
 <ng-template #calendar let-c="close" let-d="dismiss">
@@ -132,10 +132,12 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-  <div class="modal-body" *ngIf="startText == '' ? false : true">
-    <p>{{ startText }}</p>
-    <p>{{ endText }}</p>
-    <p>Chủ đề cuộc họp: {{ subjectText }}</p>
+  <div class="modal-body" *ngIf="arrayInforDay.length == 0 ? false : true">
+    <div *ngFor="let meeting of arrayInforDay" class="border mb-3">
+      <p>{{ meeting.startText }}</p>
+      <p>{{ meeting.endText }}</p>
+      <p>Chủ đề cuộc họp: {{ meeting.subjectText }}</p>
+    </div>
   </div>
 
   <div class="modal-body no-meeting" *ngIf="startText == '' ? true : false">
