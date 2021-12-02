@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -31,6 +32,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     HttpClientModule,
     BrowserAnimationsModule,
     NgxMaterialTimepickerModule,
+    NgxSpinnerModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

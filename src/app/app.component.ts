@@ -19,6 +19,7 @@ import {
 import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 import { CommonService } from 'src/services/common.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Injectable()
 export class CustomAdapter extends NgbDateAdapter<string> {
@@ -126,6 +127,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   valueOfLocalStorage: any = localStorage.getItem('demoValue');
 
+  checkCreateMeeting: boolean = false;
+
   // Convert XML to JSON
 
   constructor(
@@ -134,7 +137,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     private commonService: CommonService,
     private calendar: NgbCalendar,
     private ngbCalendar: NgbCalendar,
-    private dateAdapter: NgbDateAdapter<string>
+    private dateAdapter: NgbDateAdapter<string>,
+    private SpinnerService: NgxSpinnerService
   ) {
     // customize default values of modals used by this component tree
     config.backdrop = 'static';
@@ -142,18 +146,21 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
   ngAfterViewInit(): void {}
   ngOnInit(): void {
-    // Get infor about Calendar
-    this.commonService.getInforCalendar().subscribe((data) => {
-      this.inforCalendar = data.value;
-      console.log(this.inforCalendar);
-    });
-
-    // Get message from slack
-    this.getMessageSlack();
+    this.getInforBegin();
   }
 
   get today() {
     return this.dateAdapter.toModel(this.ngbCalendar.getToday())!;
+  }
+
+  public getInforBegin(): void {
+    // Get infor about Calendar
+    this.SpinnerService.show();
+    this.commonService.getInforCalendar().subscribe((data) => {
+      this.inforCalendar = data.value;
+      // Get message from slack
+      this.getMessageSlack();
+    });
   }
 
   public getMessageSlack(): void {
@@ -168,44 +175,54 @@ export class AppComponent implements OnInit, AfterViewInit {
         }
       }
 
+      console.log(this.listMessageMeeting);
+      console.log(this.inforCalendar);
+
       for (const meeting of this.listMessageMeeting) {
-        var endMeeting =
-          meeting.slice(0, 11) +
-          (Number(meeting.slice(11, 13)) + 2) +
-          meeting.slice(13);
-        this.commonService
-          .createMeetingCalendar({
-            subject: 'Tạo mới một cuộc họp',
-            start: {
-              dateTime: meeting,
-              timeZone: 'UTC',
-            },
-            end: {
-              dateTime: endMeeting,
-              timeZone: 'UTC',
-            },
-          })
-          .subscribe((data) => {
-            setTimeout(() => {
-              this.commonService.createFileDriver().subscribe(
-                (data) => {
-                  console.log(data);
-                },
-                (err) => {
-                  console.log(err.error.text);
-                  this.storeDriverId.push({
-                    date: meeting,
-                    driverId: err.error.text,
-                  });
-                  localStorage.setItem(
-                    'demoValue',
-                    JSON.stringify(this.storeDriverId)
-                  );
-                }
-              );
-            }, 1000);
-          });
+        for (const value of this.inforCalendar) {
+          if (value.start.dateTime.slice(0, 19) == meeting) {
+            this.checkCreateMeeting = true;
+            break;
+          }
+        }
+        if (!this.checkCreateMeeting) {
+          var endMeeting =
+            meeting.slice(0, 11) +
+            (Number(meeting.slice(11, 13)) + 2) +
+            meeting.slice(13);
+          this.commonService
+            .createMeetingCalendar({
+              subject: 'Tạo mới một cuộc họp',
+              start: {
+                dateTime: meeting,
+                timeZone: 'UTC',
+              },
+              end: {
+                dateTime: endMeeting,
+                timeZone: 'UTC',
+              },
+            })
+            .subscribe((data) => {
+              setTimeout(() => {
+                this.commonService.createFileDriver().subscribe(
+                  (data) => {},
+                  (err) => {
+                    this.storeDriverId.push({
+                      date: meeting,
+                      driverId: err.error.text,
+                    });
+                    localStorage.setItem(
+                      'demoValue',
+                      JSON.stringify(this.storeDriverId)
+                    );
+                  }
+                );
+              }, 1000);
+            });
+        }
       }
+
+      this.SpinnerService.hide();
     });
   }
 
@@ -348,6 +365,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                 'demoValue',
                 JSON.stringify(this.storeDriverId)
               );
+              this.getInforBegin();
             }
           );
           console.log(data);
