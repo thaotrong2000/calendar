@@ -185,6 +185,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             break;
           }
         }
+        console.log(this.checkCreateMeeting);
         if (!this.checkCreateMeeting) {
           var endMeeting =
             meeting.slice(0, 11) +
@@ -211,6 +212,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                       date: meeting,
                       driverId: err.error.text,
                     });
+                    console.log('Ban dang o day');
                     localStorage.setItem(
                       'demoValue',
                       JSON.stringify(this.storeDriverId)
