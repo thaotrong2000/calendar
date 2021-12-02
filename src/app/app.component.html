@@ -133,10 +133,21 @@
     </button>
   </div>
   <div class="modal-body" *ngIf="arrayInforDay.length == 0 ? false : true">
-    <div *ngFor="let meeting of arrayInforDay" class="border mb-3">
+    <div
+      *ngFor="let meeting of arrayInforDay"
+      class="border mb-3 p-3 rounded shadow-sm"
+    >
+      <p>Chủ đề cuộc họp: {{ meeting.subjectText }}</p>
       <p>{{ meeting.startText }}</p>
       <p>{{ meeting.endText }}</p>
-      <p>Chủ đề cuộc họp: {{ meeting.subjectText }}</p>
+      <p>
+        Folder driver:
+        <a
+          href="https://drive.google.com/drive/u/0/folders/{{ driverId }}"
+          target="_blank"
+          >Google drive</a
+        >
+      </p>
     </div>
   </div>
 

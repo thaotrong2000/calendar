@@ -120,6 +120,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   listMessageMeeting: Array<any> = [];
 
+  storeDriverId: Array<any> = new Array<any>();
+
+  driverId: any;
+
+  valueOfLocalStorage: any = localStorage.getItem('demoValue');
+
   // Convert XML to JSON
 
   constructor(
@@ -185,7 +191,17 @@ export class AppComponent implements OnInit, AfterViewInit {
                 (data) => {
                   console.log(data);
                 },
-                (err) => console.log(err)
+                (err) => {
+                  console.log(err.error.text);
+                  this.storeDriverId.push({
+                    date: meeting,
+                    driverId: err.error.text,
+                  });
+                  localStorage.setItem(
+                    'demoValue',
+                    JSON.stringify(this.storeDriverId)
+                  );
+                }
               );
             }, 1000);
           });
@@ -217,6 +233,18 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.noMeeting = '';
       console.log(this.inforCalendar[key].start.dateTime.slice(0, 10));
       if (this.inforCalendar[key].start.dateTime.slice(0, 10) == arg.dateStr) {
+        if (this.inforCalendar[key].start.dateTime.slice(0, 16)) {
+          console.log(this.inforCalendar[key].start.dateTime.slice(0, 16));
+          for (const value of JSON.parse(this.valueOfLocalStorage)) {
+            console.log(value);
+            if (
+              value.date.slice(0, 16) ==
+              this.inforCalendar[key].start.dateTime.slice(0, 16)
+            ) {
+              this.driverId = value.driverId;
+            }
+          }
+        }
         this.noMeeting = '';
         this.subjectText = this.inforCalendar[key].subject;
         this.startText =
@@ -239,6 +267,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           subjectText: this.subjectText,
           startText: this.startText,
           endText: this.endText,
+          driverId: this.driverId,
         });
       }
 
@@ -306,11 +335,19 @@ export class AppComponent implements OnInit, AfterViewInit {
         (data) => {
           this.commonService.createFileDriver().subscribe(
             (data) => {
-              console.log('okkkk');
               console.log(data);
             },
             (err) => {
+              console.log('okkkk');
               console.log(err);
+              this.storeDriverId.push({
+                date: startPost,
+                driverId: err.error.text,
+              });
+              localStorage.setItem(
+                'demoValue',
+                JSON.stringify(this.storeDriverId)
+              );
             }
           );
           console.log(data);
