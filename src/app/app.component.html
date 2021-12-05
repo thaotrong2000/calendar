@@ -1,10 +1,11 @@
 <div></div>
-<h4 class="text-center btn btn-primary mt-4" (click)="openCalendar()">
+<h4 class="text-center btn btn-primary mt-4 ml-5" (click)="openCalendar()">
   Tạo mới cuộc họp
 </h4>
 
-<full-calendar #calendarCustom [options]="calendarOptions"> </full-calendar>
-
+<div class="pl-5 pr-5">
+  <full-calendar #calendarCustom [options]="calendarOptions"> </full-calendar>
+</div>
 <!-- Dialog display calendar -->
 <ng-template #calendar let-c="close" let-d="dismiss">
   <div class="modal-header">
