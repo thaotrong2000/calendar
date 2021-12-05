@@ -138,13 +138,24 @@ export class AppComponent implements OnInit, AfterViewInit {
     private calendar: NgbCalendar,
     private ngbCalendar: NgbCalendar,
     private dateAdapter: NgbDateAdapter<string>,
-    private SpinnerService: NgxSpinnerService
+    private SpinnerService: NgxSpinnerService,
+    private ele: ElementRef
   ) {
     // customize default values of modals used by this component tree
     config.backdrop = 'static';
     config.keyboard = false;
   }
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    var demo = this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
+    for (const value of demo) {
+      for (const valueOfLocal of JSON.parse(this.valueOfLocalStorage)) {
+        if (valueOfLocal.date.slice(0, 10) == value?.attributes[2].nodeValue) {
+          value.style.backgroundColor = '#ccf5ff';
+          break;
+        }
+      }
+    }
+  }
   ngOnInit(): void {
     this.getInforBegin();
   }
