@@ -153,10 +153,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     );
     var demo = this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
     for (const value of demo) {
-      for (const valueOfLocal of this.valueOfLocalStorage) {
-        if (valueOfLocal.date.slice(0, 10) == value?.attributes[2].nodeValue) {
-          value.style.backgroundColor = '#ccf5ff';
-          break;
+      if (this.valueOfLocalStorage.length > 0) {
+        for (const valueOfLocal of this.valueOfLocalStorage) {
+          if (
+            valueOfLocal.date.slice(0, 10) == value?.attributes[2].nodeValue
+          ) {
+            value.style.backgroundColor = '#ccf5ff';
+            break;
+          }
         }
       }
     }
@@ -230,12 +234,37 @@ export class AppComponent implements OnInit, AfterViewInit {
                     driverId: err.error.text,
                   });
 
-                  console.log(this.storeDriverId);
-                  console.log('Ban dang o day');
-                  localStorage.setItem(
-                    'demoValue',
-                    JSON.stringify(this.storeDriverId)
+                  var valueCurrent: Array<any> = [];
+                  var demoValue = JSON.parse(
+                    localStorage.getItem('demoValue') || '{}'
                   );
+                  console.log(demoValue);
+                  valueCurrent.push({
+                    date: meeting,
+                    driverId: err.error.text,
+                  });
+                  if (Array.isArray(demoValue)) {
+                    demoValue.push({
+                      date: meeting,
+                      driverId: err.error.text,
+                    });
+
+                    console.log(demoValue);
+                    console.log('dang o day');
+                  } else {
+                    demoValue = [];
+
+                    demoValue.push({
+                      date: meeting,
+                      driverId: err.error.text,
+                    });
+
+                    console.log(demoValue);
+                    console.log('dang o day');
+                  }
+
+                  console.log('Ban dang o day');
+                  localStorage.setItem('demoValue', JSON.stringify(demoValue));
 
                   // Load css:
                 }
