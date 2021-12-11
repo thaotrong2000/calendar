@@ -26,7 +26,14 @@ export class CommonService {
   }
 
   // Post file driver according format dateTime
-  public createFileDriver(): Observable<any> {
-    return this.http.post<any>('http://localhost:8088/createFolder', {});
+  public createFileDriver(nameFolder: any): Observable<any> {
+    return this.http.get<any>(
+      `http://localhost:8088/create?fdname=${nameFolder}`
+    );
+  }
+
+  // Delete event meeting Outlook calendar
+  public deleteMeeting(idMeeting: any): Observable<any> {
+    return this.http.delete(`http://localhost:8088/delete?eid=${idMeeting}`);
   }
 }

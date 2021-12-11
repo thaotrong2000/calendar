@@ -20,6 +20,7 @@ import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 import { CommonService } from 'src/services/common.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class CustomAdapter extends NgbDateAdapter<string> {
@@ -131,6 +132,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   checkCreateMeeting: boolean = false;
 
+  saveInforEvent: Array<any> = [];
+
+  nameFolder: string = '';
+
   // Convert XML to JSON
 
   constructor(
@@ -148,22 +153,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     config.keyboard = false;
   }
   ngAfterViewInit(): void {
-    this.valueOfLocalStorage = JSON.parse(
-      localStorage.getItem('demoValue') || '{}'
-    );
-    var demo = this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
-    for (const value of demo) {
-      if (this.valueOfLocalStorage.length > 0) {
-        for (const valueOfLocal of this.valueOfLocalStorage) {
-          if (
-            valueOfLocal.date.slice(0, 10) == value?.attributes[2].nodeValue
-          ) {
-            value.style.backgroundColor = '#ccf5ff';
-            break;
-          }
-        }
-      }
-    }
+    this.changeColorDate();
   }
   ngOnInit(): void {
     this.getInforBegin();
@@ -173,11 +163,40 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.dateAdapter.toModel(this.ngbCalendar.getToday())!;
   }
 
+  public changeColorDate(): void {
+    this.valueOfLocalStorage = JSON.parse(
+      localStorage.getItem('demoValue') || '{}'
+    );
+    var demo = this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
+    console.log(this.saveInforEvent);
+    for (const value of demo) {
+      if (this.saveInforEvent.length > 0) {
+        for (const valueOfLocal of this.saveInforEvent) {
+          if (valueOfLocal.slice(0, 10) == value?.attributes[2].nodeValue) {
+            value.style.backgroundColor = '#ccf5ff';
+            break;
+          } else {
+            value.style.backgroundColor = '#ffffff';
+          }
+        }
+      }
+    }
+  }
+
   public getInforBegin(): void {
     // Get infor about Calendar
     this.SpinnerService.show();
     this.commonService.getInforCalendar().subscribe((data) => {
       this.inforCalendar = data.value;
+      console.log(this.inforCalendar);
+
+      for (const value of this.inforCalendar) {
+        this.saveInforEvent.push(value.start.dateTime.toString().slice(0, 19));
+      }
+
+      this.changeColorDate();
+
+      console.log(this.saveInforEvent);
       // Get message from slack
       this.getMessageSlack();
     });
@@ -226,49 +245,6 @@ export class AppComponent implements OnInit, AfterViewInit {
             })
             .subscribe((data) => {
               console.log('ban o day');
-              this.commonService.createFileDriver().subscribe(
-                (data) => {},
-                (err) => {
-                  this.storeDriverId.push({
-                    date: meeting,
-                    driverId: err.error.text,
-                  });
-
-                  var valueCurrent: Array<any> = [];
-                  var demoValue = JSON.parse(
-                    localStorage.getItem('demoValue') || '{}'
-                  );
-                  console.log(demoValue);
-                  valueCurrent.push({
-                    date: meeting,
-                    driverId: err.error.text,
-                  });
-                  if (Array.isArray(demoValue)) {
-                    demoValue.push({
-                      date: meeting,
-                      driverId: err.error.text,
-                    });
-
-                    console.log(demoValue);
-                    console.log('dang o day');
-                  } else {
-                    demoValue = [];
-
-                    demoValue.push({
-                      date: meeting,
-                      driverId: err.error.text,
-                    });
-
-                    console.log(demoValue);
-                    console.log('dang o day');
-                  }
-
-                  console.log('Ban dang o day');
-                  localStorage.setItem('demoValue', JSON.stringify(demoValue));
-
-                  // Load css:
-                }
-              );
             });
         }
       }
@@ -290,6 +266,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   public handleDateClick(arg: any) {
+    console.log(this);
+
     console.log(this.inforCalendar);
     this.modalService.open(this.input);
     console.log(arg.dateStr);
@@ -309,7 +287,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (this.inforCalendar[key].start.dateTime.slice(0, 16)) {
           console.log(this.inforCalendar[key].start.dateTime.slice(0, 16));
           for (const value of this.valueOfLocalStorage) {
-            console.log(value);
             if (
               value.date.slice(0, 16) ==
               this.inforCalendar[key].start.dateTime.slice(0, 16)
@@ -341,6 +318,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           startText: this.startText,
           endText: this.endText,
           driverId: this.driverId,
+          meetingId: this.inforCalendar[key].id,
         });
       }
 
@@ -406,50 +384,55 @@ export class AppComponent implements OnInit, AfterViewInit {
       })
       .subscribe(
         (data) => {
-          this.commonService.createFileDriver().subscribe(
-            (data) => {
-              console.log(data);
-            },
-            (err) => {
-              console.log('okkkk');
-              console.log(err);
-              this.storeDriverId.push({
-                date: startPost,
-                driverId: err.error.text,
-              });
-              this.valueOfLocalStorage = JSON.parse(
-                localStorage.getItem('demoValue') || '{}'
-              );
-              this.valueOfLocalStorage.push({
-                date: startPost,
-                driverId: err.error.text,
-              });
+          if (this.nameFolder) {
+            this.nameFolder = this.nameFolder.split(' ').join('+');
 
-              console.log('okkkbayyyy');
+            this.commonService.createFileDriver(this.nameFolder).subscribe(
+              (data) => {
+                console.log(data);
+              },
+              (err) => {
+                console.log('okkkk');
+                console.log(err);
+                this.storeDriverId.push({
+                  date: startPost,
+                  driverId: err.error.text,
+                });
+                this.valueOfLocalStorage = JSON.parse(
+                  localStorage.getItem('demoValue') || '{}'
+                );
+                this.valueOfLocalStorage.push({
+                  date: startPost,
+                  driverId: err.error.text,
+                });
 
-              localStorage.setItem(
-                'demoValue',
-                JSON.stringify(this.valueOfLocalStorage)
-              );
-              this.valueOfLocalStorage = JSON.parse(
-                localStorage.getItem('demoValue') || '{}'
-              );
-              var demo =
-                this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
-              for (const value of demo) {
-                for (const valueOfLocal of this.valueOfLocalStorage) {
-                  if (
-                    valueOfLocal.date.slice(0, 10) ==
-                    value?.attributes[2].nodeValue
-                  ) {
-                    value.style.backgroundColor = '#ccf5ff';
-                    break;
+                console.log('okkkbayyyy');
+
+                localStorage.setItem(
+                  'demoValue',
+                  JSON.stringify(this.valueOfLocalStorage)
+                );
+                this.valueOfLocalStorage = JSON.parse(
+                  localStorage.getItem('demoValue') || '{}'
+                );
+                var demo =
+                  this.ele.nativeElement.querySelectorAll('.fc-daygrid-day');
+                for (const value of demo) {
+                  for (const valueOfLocal of this.valueOfLocalStorage) {
+                    if (
+                      valueOfLocal.date.slice(0, 10) ==
+                      value?.attributes[2].nodeValue
+                    ) {
+                      value.style.backgroundColor = '#ccf5ff';
+                      break;
+                    }
                   }
                 }
+                this.getInforBegin();
               }
-              this.getInforBegin();
-            }
-          );
+            );
+          }
+
           console.log(data);
           this.statusCreateMeeting = true;
           this.msgMeeting = 'Tạo cuộc họp thành công';
@@ -466,5 +449,22 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public openAlertMeeting(): void {
     this.modalService.open(this.alertMeeting);
+  }
+
+  public deleteMeeting(idMeeting: any) {
+    this.commonService.deleteMeeting(idMeeting).subscribe((data) => {
+      console.log(data);
+
+      for (const key in this.arrayInforDay) {
+        if (this.arrayInforDay[key].meetingId == idMeeting) {
+          this.arrayInforDay.splice(Number(key), 1);
+        }
+      }
+
+      this.saveInforEvent = [];
+
+      this.getInforBegin();
+      this.changeColorDate();
+    });
   }
 }
