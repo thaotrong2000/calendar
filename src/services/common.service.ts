@@ -36,4 +36,11 @@ export class CommonService {
   public deleteMeeting(idMeeting: any): Observable<any> {
     return this.http.delete(`http://localhost:8088/delete?eid=${idMeeting}`);
   }
+
+  // Delete folder google driver
+  public deleteFolderDriver(idFolderDriver: any): Observable<any> {
+    return this.http.get(
+      `http://localhost:8088/deldrive?fdid=${idFolderDriver}`
+    );
+  }
 }

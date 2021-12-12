@@ -98,6 +98,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('content') input: ElementRef | undefined;
   @ViewChild('calendar') calendarDialog: ElementRef | undefined;
   @ViewChild('alertMeeting') alertMeeting: ElementRef | undefined;
+  @ViewChild('alertDeleteFolder') alertDeleteFolder: ElementRef | undefined;
   @ViewChild('calendarCustom') calendarCustom:
     | FullCalendarComponent
     | undefined;
@@ -451,9 +452,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.modalService.open(this.alertMeeting);
   }
 
+  public openAlertDeleteFolder(): void {
+    this.modalService.open(this.alertDeleteFolder);
+  }
+
   public deleteMeeting(idMeeting: any) {
     this.commonService.deleteMeeting(idMeeting).subscribe((data) => {
       console.log(data);
+      this.modalService.dismissAll('Cross click');
+      this.openAlertDeleteFolder();
 
       for (const key in this.arrayInforDay) {
         if (this.arrayInforDay[key].meetingId == idMeeting) {
@@ -465,6 +472,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       this.getInforBegin();
       this.changeColorDate();
+    });
+  }
+
+  public deleteFolder(driverId: any): void {
+    this.commonService.deleteFolderDriver(driverId).subscribe((data) => {
+      console.log(data);
     });
   }
 }
