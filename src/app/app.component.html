@@ -106,7 +106,6 @@
         <span><strong>Tạo folder google driver:</strong></span>
       </div>
       <input type="text" class="form-control" [(ngModel)]="nameFolder" />
-      <p>{{ nameFolder }}</p>
     </div>
 
     <ngx-material-timepicker #picker2 [format]="24"></ngx-material-timepicker>
@@ -253,8 +252,6 @@
     </button>
   </div>
 </ng-template>
-
-<button (click)="openAlertDeleteFolder()">click</button>
 
 <ngx-spinner
   bdColor="rgba(51, 51, 51, 0.8)"
