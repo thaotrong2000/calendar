@@ -260,6 +260,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public openCalendar(): void {
     this.modalService.open(this.calendarDialog);
+    this.subject = '';
+    this.nameFolder = '';
+    this.hourStart = '';
+    this.hourEnd = '';
+    this.model1 = '';
+    this.model2 = '';
   }
 
   public open(content: any) {
